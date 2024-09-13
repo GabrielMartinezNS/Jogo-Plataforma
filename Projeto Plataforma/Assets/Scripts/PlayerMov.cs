@@ -6,15 +6,15 @@ using UnityEngine;
 public class PlayerMov : MonoBehaviour
 {
     Rigidbody2D rb;
-    float vel = 5;
-    float Jforce = 5;
+    float vel = 5f;
+    float Jforce = 5f;
     bool onGround;
     bool jump2;
     bool canDash = true;
     bool dashing;
-    float dashCooldown = 1f;
+    float dashCooldown;
     float dashTime = 0.2f;
-    float Dforce = 5;
+    float Dforce = 10f;
 
     void Start()
     {
@@ -30,15 +30,32 @@ public class PlayerMov : MonoBehaviour
     void Moviment()
     {
         // Movimentação base
-        if(Input.GetButton("Horizontal"))
+        if(Input.GetButton("Horizontal") && !dashing)
         {
             transform.position += new Vector3(Input.GetAxis("Horizontal"), 0, 0) * Time.deltaTime * vel;
         }
 
         //  Dash
-        if(Input.GetButtonDown("Dash"))
+        if(Input.GetButtonDown("Dash") && canDash)
         {
             StartCoroutine(Dash());
+        }
+
+        if(Input.GetAxis("Horizontal") > 0)
+        {
+            transform.eulerAngles = new Vector3(0, 0, 0);
+            if(Dforce < 0)
+            {
+                Dforce = Dforce * -1;
+            }
+        }
+        if(Input.GetAxis("Horizontal") < 0)
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
+            if(Dforce > 0)
+            {
+                Dforce = Dforce * -1;
+            }
         }
     }
 
@@ -75,6 +92,14 @@ public class PlayerMov : MonoBehaviour
 
     IEnumerator Dash()
     {
+        if(onGround)
+        {
+            dashCooldown = 0.5f;
+        }
+        else
+        {
+            dashCooldown = 1f;
+        }
         //Inciar ação do dash
         canDash = false;
         dashing = true;
